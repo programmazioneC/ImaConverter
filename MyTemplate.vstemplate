@@ -1,0 +1,26 @@
+<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Project">
+  <TemplateData>
+    <Name>ImaConverter</Name>
+    <Description>&lt;No description available&gt;</Description>
+    <ProjectType>VC</ProjectType>
+    <ProjectSubType>
+    </ProjectSubType>
+    <SortOrder>1000</SortOrder>
+    <CreateNewFolder>true</CreateNewFolder>
+    <DefaultName>ImaConverter</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+    <LocationField>Enabled</LocationField>
+    <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+    <Icon>__TemplateIcon.ico</Icon>
+  </TemplateData>
+  <TemplateContent>
+    <Project TargetFileName="ImaConverter.vcxproj" File="ImaConverter.vcxproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="false" TargetFileName="$projectname$.vcxproj.filters">ImaConverter.vcxproj.filters</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="main.c">main.c</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="img_manager.c">img_manager.c</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="img_manager.h">img_manager.h</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="solution_img.txt">solution_img.txt</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="test_img.txt">test_img.txt</ProjectItem>
+    </Project>
+  </TemplateContent>
+</VSTemplate>
