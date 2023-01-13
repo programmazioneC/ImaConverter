@@ -34,5 +34,8 @@
     <Text Include="test_img.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="vuota.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

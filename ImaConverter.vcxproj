@@ -148,6 +148,7 @@
     <ClInclude Include="img_manager.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="vuota.txt" />
     <Text Include="solution_img.txt" />
     <Text Include="test_img.txt" />
   </ItemGroup>

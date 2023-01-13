@@ -1,65 +1,68 @@
-#include "img_manager.h"
-#include <stdlib.h>
 #include <stdio.h>
-
-struct image empty_img() {
+#include<stdlib.h>
+#include "img_manager.h"
+struct image create_img(int h, int w) {
+	struct  image img;
+	int i;
+	img.height = h;
+	img.width = w;
+	img.pixels = calloc(h, sizeof(struct pixels*));
+	for ( i = 0; i < h; i++)
+	{
+		img.pixels[i] = calloc(w, sizeof(struct pixels**));
+	}
+	return img;
+}
+struct image get_empty_img() {
 	struct image img;
 	img.height = 0;
 	img.width = 0;
 	img.pixels = NULL;
 	return img;
 }
-static int avg(struct pixel px) {
-	return (px.R+px.G+px.B) / 3;
+int average(struct pixel px) {
+	return (px.R+px.G+px.B)/3;
 }
-struct image img_create(int h,int w){
-	struct image img;
-	img.height = h;
-	img.width = w;
-	int i;
-	img.pixels = calloc(h, sizeof(struct pixel*));
-	for ( i = 0; i < img.height; i++)
-	{
-		img.pixels[i] = calloc(w, sizeof(struct pixel**));
-	}
-	return img;
-}
-struct image one_color_img(int h,int w,struct pixel px) {
-	struct image img = img_create(h, w);
-	int i, j;
-	for ( i = 0; i < h; i++)
-	{
-		for ( j = 0; j < w; j++)
-		{
-			img.pixels[i][j].R = px.R;
-			img.pixels[i][j].G = px.G;
-			img.pixels[i][j].B = px.B;
-		}
-	}
-	return img;
-}
-/*Prende in input un'immagine a colori e ritorna un'immagine in scala di grigi*/
-struct image RGB_to_greyscale(struct image img) {
+
+struct image one_color_img(int h,int w, struct pixel color) {
+	struct image img= create_img(h,w);
 	int i, j;
 	for ( i = 0; i < img.height; i++)
 	{
 		for ( j = 0; j < img.width; j++)
 		{
-			int val = avg(img.pixels[i][j]);
-			img.pixels[i][j].R = val;
-			img.pixels[i][j].G = val;
-			img.pixels[i][j].B = val;
+			img.pixels[i][j] = color;
+		}
+	}
+	return img;	
+}
+/*Prende in input un'immagine a colori e ritorna un'immagine in scala di grigi*/
+struct image RGB_to_greyscale(struct image img){
+	int i, j;
 
+	for ( i = 0; i < img.height; i++)
+	{
+		for ( j = 0; j < img.width; j++)
+		{
+			int val = average(img.pixels[i][j]);
+			img.pixels[i][j].R = (unsigned char)val;
+			img.pixels[i][j].G = (unsigned char)val;
+			img.pixels[i][j].B = (unsigned char)val;
 		}
 	}
 	return img;
 }
-/*posso creare una matrice più grande che contenga l'altra */
+
 /*Prende in input un'immagine e ritorna la stessa immagine con l'aggiunta di un bordo spesso un pixel*/
-struct image add_border(struct image img, struct pixel color) {
-	
-	struct image new_img = one_color_img(img.height+2, img.width+2, color);
+/*mi ricordo che una matrice grande contiene una piccola
+ha senso che io crei una matrice più grande di 2 colonne e 2 righe in più tutta del colore di cui voglio fare il bordo
+*/
+struct image add_border(struct image img, struct pixel color){
+	struct image new_img = one_color_img(img.height+2,img.width+2,color);
 	int i, j;
+	/*NOTARE CHE USO h,w DELLA VECCHIA IMMAGINE
+	E CHE SCORRO LA NUOVA SOMMANDO 1, IN QUESTO MODO
+	NON SOVRASCIVO I BORDI*/
 	for ( i = 0; i < img.height; i++)
 	{
 		for ( j = 0; j < img.width; j++)
@@ -67,44 +70,44 @@ struct image add_border(struct image img, struct pixel color) {
 			new_img.pixels[i + 1][j + 1] = img.pixels[i][j];
 		}
 	}
-
 	return new_img;
 }
 
 /*Prende in input un file e ritorna l'immagine letta*/
-struct image load_image(char* filename) {
-	struct image img= empty_img();
-	int h=0, w=0;
-	int r, g, b;
-	int i, j;
-	FILE* fload = fopen(filename,"r");
-	if (fload !=NULL)
-	{
-		fscanf(fload, "%d\t%d", &h, &w);
+/*nel caso vada male deve ritornare una immagine vuota
+con la matrice = NULL e altezza e profindità = 0, mi conviene fare una funzione d'appoggio*/
+struct image load_image(char* filename){
+	FILE* fr = fopen(filename,"r");
+	int r,g, b ;
+	int i, j, h, w;
+	struct image img;
+	if (fr != NULL) {
 		
-		img.height = h;
-		img.width = w;
-		img.pixels = calloc(img.height, sizeof(struct pixel*));
+		if (fscanf(fr, "%d\t%d", &h, &w) == EOF) { return get_empty_img(); }
+		/*devo allocare memoria in base alle dimensioni passate nel file: mi conviene farlo in una 
+		funzione a parte che restituisca una matrice vuota con le dimensioni*/
+		img = create_img(h, w);
 		for ( i = 0; i < img.height; i++)
 		{
-			img.pixels[i] = calloc(w, sizeof(struct pixel**));
 			for ( j = 0; j < img.width; j++)
 			{
-				if (fscanf(fload, "%d\t%d\t%d", &r, &g, &b) == EOF) { return empty_img(); }
+				fscanf(fr, "%d\t%d\t%d", &r, &g, &b);
 				img.pixels[i][j].R = (unsigned char)r;
 				img.pixels[i][j].G = (unsigned char)g;
 				img.pixels[i][j].B = (unsigned char)b;
-				
 			}
 		}
-		fclose(fload);
 		return img;
+		fclose(fr);
 	}
-	else { fclose(fload); return img; }
+	else
+	{
+		return get_empty_img();
+	}
 }
 
 /*Prende in input un'immagine e la salva su file*/
-int save_image(struct image img, char* filename) {
+int save_image(struct image img, char* filename){
 	int i, j;
 	FILE* fw = fopen(filename, "w");
 	if (fw != NULL) {
@@ -116,7 +119,6 @@ int save_image(struct image img, char* filename) {
 				fprintf(fw, "%d\t%d\t%d\n", img.pixels[i][j].R, img.pixels[i][j].G, img.pixels[i][j].B);
 			}
 		}
-		fclose(fw);
 		return 1;
 	}
 	else
@@ -124,5 +126,4 @@ int save_image(struct image img, char* filename) {
 		return 0;
 	}
 	
-
 }
